@@ -16,3 +16,14 @@ CREATE TABLE user (
     agreed_personal BOOLEAN,
     profile_image TEXT
 );
+
+CREATE TABLE board (
+	board_number INT,
+    title TEXT,
+    contents TEXT,
+    write_datetime DATETIME,
+    writer_email VARCHAR(50),
+    writer_nickname VARCHAR(20),
+    writer_profile_image TEXT,
+    view_count INT
+);
