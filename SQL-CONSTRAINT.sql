@@ -77,3 +77,27 @@ DELETE FROM super_table;
 
 SELECT * FROM super_table;
 SELECT * FROM sub_table;
+
+# CHECK : 지정한 컬럼에 들어갈 데이터를 제한하는 제약조건
+# INSERT, UPDATE에서 영향을 미침
+CREATE TABLE sample_table_5 (
+	column1 INT,
+    check_column INT CHECK (check_column > 0 AND check_column <10)
+);
+
+INSERT INTO sample_table_5 VALUES (1, 0);
+INSERT INTO sample_table_5 VALUES (1, 10);
+INSERT INTO sample_table_5 VALUES (1, 4);
+
+UPDATE sample_table_5 SET check_column = 100;
+
+# DEFAULT : 해당 컬럼에 값을 지정하지 않으면 기본값으로 지정해주는 제약조건
+# INSERT에서 영향을 미침
+CREATE TABLE sample_table_6 (
+	column1 INT,
+    default_column INT DEFAULT 10
+);
+
+INSERT INTO sample_table_6 (column1) VALUES (1);
+SELECT *FROM sample_table_6;
+INSERT INTO sample_table_6 VALUES (1, null);
