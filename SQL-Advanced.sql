@@ -175,37 +175,24 @@ SELECT 업소명, count(*) AS 수 FROM bbq
 GROUP BY 업소명
 HAVING 수 >= 10;
 
-# 최신 게시물 리스트 SQL2
-# 게시물번호, 제목, 내용, (사진), 작성날짜, 조회수, 
-# 작성자프로필사진, 작성자 닉네임, 댓글 수, 좋아요 수
+# INDEX - 테이블에서 원하는 컬럼의 데이터를 빠르게 찾을 수 있도록 하는 스키마
+# CREATE INDEX 인덱스명 ON 테이블명 (컬럼, ...);
+CREATE INDEX bbq_업소명_idx ON bbq (업소명);
+CREATE INDEX bbq_위치_idx ON bbq (위도, 경도);
 
-# board, user, favorite, comment
-SELECT T1.board_number, T1.title, T1.contents, T1.image_url, T1.write_datetime, T1.view_count,
-	   T1.profile_image, T1.nickname,
-       T2.comment_count,
-       T3.favorite_count
-FROM (
-	SELECT
-	B.board_number, B.title, B.contents, B.image_url, B.write_datetime, B.view_count,
-    U.profile_image, U.nickname	
-	FROM board AS B
-	INNER JOIN user AS U
-	ON B.writer_email = U.email
-) AS T1 INNER JOIN
-(
-	SELECT B.board_number, count(C.user_email) AS comment_count
-	FROM board AS B
-	LEFT JOIN comment AS C
-	ON B.board_number = C.board_number
-    GROUP BY B.board_number
-) AS T2
-ON T1.board_number = T2.board_number
-LEFT JOIN
-(
-	SELECT B.board_number, count(F.user_email) AS favorite_count
-	FROM board AS B
-	LEFT JOIN favorite AS F
-	ON B.board_number = F.board_number
-    GROUP BY B.board_number
-) AS T3
-ON T1.board_number = T3.board_number;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -85,3 +85,149 @@ SELECT
 FROM board AS B INNER JOIN user AS U
 ON B.writer_email = U.email
 WHERE B.board_number = 2;
+
+# 최신 게시물 리스트 SQL2
+# 게시물번호, 제목, 내용, (사진), 작성날짜, 조회수, 
+# 작성자프로필사진, 작성자 닉네임, 댓글 수, 좋아요 수
+
+# board, user, favorite, comment
+SELECT T1.board_number, T1.title, T1.contents, T1.image_url, T1.write_datetime, T1.view_count,
+	   T1.profile_image, T1.nickname,
+       T2.comment_count,
+       T3.favorite_count
+FROM (
+	SELECT
+	B.board_number, B.title, B.contents, B.image_url, B.write_datetime, B.view_count,
+    U.profile_image, U.nickname	
+	FROM board AS B
+	INNER JOIN user AS U
+	ON B.writer_email = U.email
+) AS T1 INNER JOIN
+(
+	SELECT B.board_number, count(C.user_email) AS comment_count
+	FROM board AS B
+	LEFT JOIN comment AS C
+	ON B.board_number = C.board_number
+    GROUP BY B.board_number
+) AS T2
+ON T1.board_number = T2.board_number
+LEFT JOIN
+(
+	SELECT B.board_number, count(F.user_email) AS favorite_count
+	FROM board AS B
+	LEFT JOIN favorite AS F
+	ON B.board_number = F.board_number
+    GROUP BY B.board_number
+) AS T3
+ON T1.board_number = T3.board_number
+ORDER BY T1.write_datetime DESC;
+
+# TOP3 게시물
+SELECT T1.board_number, T1.title, T1.contents, T1.image_url, T1.write_datetime, T1.view_count,
+	   T1.profile_image, T1.nickname,
+       T2.comment_count,
+       T3.favorite_count
+FROM (
+	SELECT
+	B.board_number, B.title, B.contents, B.image_url, B.write_datetime, B.view_count,
+    U.profile_image, U.nickname	
+	FROM board AS B
+	INNER JOIN user AS U
+	ON B.writer_email = U.email
+) AS T1 INNER JOIN
+(
+	SELECT B.board_number, count(C.user_email) AS comment_count
+	FROM board AS B
+	LEFT JOIN comment AS C
+	ON B.board_number = C.board_number
+    GROUP BY B.board_number
+) AS T2
+ON T1.board_number = T2.board_number
+LEFT JOIN
+(
+	SELECT B.board_number, count(F.user_email) AS favorite_count
+	FROM board AS B
+	LEFT JOIN favorite AS F
+	ON B.board_number = F.board_number
+    GROUP BY B.board_number
+) AS T3
+ON T1.board_number = T3.board_number
+ORDER BY T3.favorite_count DESC
+LIMIT 3;
+
+# 검색 결과 리스트 불러오기 SQL
+
+SELECT T1.board_number, T1.title, T1.contents, T1.image_url, T1.write_datetime, T1.view_count,
+	   T1.profile_image, T1.nickname,
+       T2.comment_count,
+       T3.favorite_count
+FROM (
+	SELECT
+	B.board_number, B.title, B.contents, B.image_url, B.write_datetime, B.view_count,
+    U.profile_image, U.nickname	
+	FROM board AS B
+	INNER JOIN user AS U
+	ON B.writer_email = U.email
+) AS T1 INNER JOIN
+(
+	SELECT B.board_number, count(C.user_email) AS comment_count
+	FROM board AS B
+	LEFT JOIN comment AS C
+	ON B.board_number = C.board_number
+    GROUP BY B.board_number
+) AS T2
+ON T1.board_number = T2.board_number
+LEFT JOIN
+(
+	SELECT B.board_number, count(F.user_email) AS favorite_count
+	FROM board AS B
+	LEFT JOIN favorite AS F
+	ON B.board_number = F.board_number
+    GROUP BY B.board_number
+) AS T3
+ON T1.board_number = T3.board_number
+WHERE title LIKE '%3%'
+ORDER BY T1.write_datetime DESC;
+
+# VIEW - 읽기 전용의 가상의 테이블
+# 물리적으로 존재하는 테이블이 아니기 떄문에 입력 수정 삭제를 진행할 수 없음
+# 자주 사용되는 복잡한 SELECT쿼리를 미리 작성하여 테이블처럼 만들어 둔것
+# CREATE VIEW 뷰이름 AS SELECT ...
+CREATE ViEW board_view AS
+SELECT T1.board_number, T1.title, T1.contents, T1.image_url, T1.write_datetime, T1.view_count,
+	   T1.profile_image, T1.nickname,
+       T2.comment_count,
+       T3.favorite_count
+FROM (
+	SELECT
+	B.board_number, B.title, B.contents, B.image_url, B.write_datetime, B.view_count,
+    U.profile_image, U.nickname	
+	FROM board AS B
+	INNER JOIN user AS U
+	ON B.writer_email = U.email
+) AS T1 INNER JOIN
+(
+	SELECT B.board_number, count(C.user_email) AS comment_count
+	FROM board AS B
+	LEFT JOIN comment AS C
+	ON B.board_number = C.board_number
+    GROUP BY B.board_number
+) AS T2
+ON T1.board_number = T2.board_number
+LEFT JOIN
+(
+	SELECT B.board_number, count(F.user_email) AS favorite_count
+	FROM board AS B
+	LEFT JOIN favorite AS F
+	ON B.board_number = F.board_number
+    GROUP BY B.board_number
+) AS T3
+ON T1.board_number = T3.board_number;
+
+# 최신게시물 불러오기 SQL3
+SELECT * FROM board_view
+ORDER BY write_datetime DESC;
+
+# 특정 유저 게시물 불러오기 SQL
+SELECT * FROM board_view
+WHERE nickname = 'nickname';
